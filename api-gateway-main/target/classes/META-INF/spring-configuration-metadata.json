@@ -1,0 +1,20 @@
+{
+  "groups": [
+    {
+      "name": "jwt",
+      "type": "com.outpass.api_gateway.config.JwtProperties",
+      "sourceType": "com.outpass.api_gateway.config.JwtProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.outpass.api_gateway.config.JwtProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
