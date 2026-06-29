@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Outpass Approved</title>
+</head>
+
+<body
+	style="margin: 0; padding: 0; background: #f4f6f9; font-family: Arial, sans-serif;">
+
+	<table width="100%" cellpadding="0" cellspacing="0"
+		style="background: #f4f6f9; padding: 40px 0;">
+		<tr>
+			<td align="center">
+
+				<table width="600" cellpadding="0" cellspacing="0"
+					style="background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, .1);">
+
+					<tr>
+						<td
+							style="background: #1677ff; padding: 25px; text-align: center;">
+							<h1 style="color: white; margin: 0;">Outpass Management
+								System</h1>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding: 35px;">
+
+							<h2 style="margin-top: 0; color: #333;">Outpass Approved</h2>
+
+							<p style="font-size: 16px; color: #555;">
+								Hello <strong th:text="${studentEmail}"></strong>,
+							</p>
+
+							<p style="font-size: 16px; color: #555; line-height: 1.6;">
+								Congratulations!</p>
+
+							<p style="font-size: 16px; color: #555; line-height: 1.6;">
+								Your Outpass/Outing request has been approved by the Hostel
+								Warden.</p>
+
+							<div
+								style="margin: 30px 0; padding: 18px; background: #e8f5e9; border-left: 5px solid #28a745; border-radius: 8px;">
+
+								<strong>Status :</strong> Approved
+
+							</div>
+
+							<p style="font-size: 16px; color: #555;">Please login to the
+								Outpass Portal and download your QR Code before leaving the
+								hostel.</p>
+
+						</td>
+					</tr>
+
+					<tr>
+						<td
+							style="background: #f8f9fa; padding: 20px; text-align: center;">
+							<span style="color: #777; font-size: 13px;"> © 2026
+								Outpass Management System </span>
+						</td>
+					</tr>
+
+				</table>
+
+			</td>
+		</tr>
+	</table>
+
+</body>
+</html>
