@@ -9,15 +9,21 @@ import java.util.List;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.outpass.outpass_service.dto.OutpassEvent;
 import com.outpass.outpass_service.dto.OutpassRequest;
 import com.outpass.outpass_service.dto.OutpassResponse;
 import com.outpass.outpass_service.dto.QrResponse;
+import com.outpass.outpass_service.dto.ResendEmailResponse;
+import com.outpass.outpass_service.model.EmailRecipient;
 import com.outpass.outpass_service.model.Outpass;
+import com.outpass.outpass_service.model.OutpassEmailResend;
 import com.outpass.outpass_service.model.OutpassStatus;
 import com.outpass.outpass_service.model.OutpassType;
+import com.outpass.outpass_service.repo.OutpassEmailResendRepository;
 import com.outpass.outpass_service.repo.OutpassRepository;
 
 import jakarta.transaction.Transactional;
@@ -32,6 +38,7 @@ public class OutpassService {
 	private final OutpassRepository outpassRepo;
 	private final TokenService tokenService;
 	private final KafkaTemplate<String, OutpassEvent> kafkaTemplate;
+	private final OutpassEmailResendRepository resendRepository;
 
 	@Transactional
 	public String apply(@Valid OutpassRequest outpassRequest, String studentEmail, String role) {
@@ -215,5 +222,89 @@ public class OutpassService {
 			}
 		
 		outpassRepo.saveAll(outpasses);
+	}
+
+	@Transactional
+	public ResendEmailResponse resendEmail(
+	        Long outpassId,
+	        EmailRecipient recipient,
+	        Authentication authentication) {
+
+	    String email = authentication.getName();
+
+	    String role = authentication.getAuthorities()
+	            .stream()
+	            .map(GrantedAuthority::getAuthority)
+	            .findFirst()
+	            .orElse("")
+	            .replaceFirst("^ROLE_", "");
+
+	    if (!"STUDENT".equals(role)) {
+	        throw new RuntimeException(
+	                "Only students can resend outpass emails");
+	    }
+
+	    Outpass outpass = outpassRepo.findById(outpassId)
+	            .orElseThrow(() ->
+	                    new RuntimeException("Outpass not found"));
+
+	    /*
+	     * Verify that this outpass belongs to the authenticated student.
+	     */
+	    if (!outpass.getStudentEmail()
+	            .equalsIgnoreCase(email)) {
+
+	        throw new RuntimeException(
+	                "You are not authorized to resend this email");
+	    }
+
+	    OutpassEmailResend resend =
+	            resendRepository
+	                    .findByOutpass_IdAndRecipient(
+	                            outpassId,
+	                            recipient)
+	                    .orElseGet(() -> {
+
+	                        OutpassEmailResend newResend =
+	                                new OutpassEmailResend();
+
+	                        newResend.setOutpass(outpass);
+	                        newResend.setRecipient(recipient);
+	                        newResend.setResendCount(0);
+
+	                        return newResend;
+	                    });
+
+	    if (resend.getResendCount() >= 4) {
+	        throw new RuntimeException(
+	                "Maximum email resend limit of 3 has been reached");
+	    }
+
+	    resend.setResendCount(
+	            resend.getResendCount() + 1
+	    );
+
+	    resendRepository.save(resend);
+
+	    // Publish Kafka event here
+	    String rawToken = tokenService.generateToken();
+		String tokenHash = tokenService.hash(rawToken);
+
+		outpass.setParentApprovalTokenHash(tokenHash);
+		outpass.setParentApprovalTokenExpiry(LocalDateTime.now().plusHours(12));
+		OutpassEvent event = new OutpassEvent(outpass.getId(), outpass.getStudentEmail(), outpass.getParentEmail(),
+				"PENDING", rawToken);
+
+		kafkaTemplate.send("outpass-events", event);
+		
+	    int remainingAttempts =
+	            4 - resend.getResendCount();
+
+	    return new ResendEmailResponse(
+	            "Email resent successfully",
+	            recipient,
+	            resend.getResendCount(),
+	            remainingAttempts
+	    );
 	}
 }

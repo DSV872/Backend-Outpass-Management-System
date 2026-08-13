@@ -1,0 +1,297 @@
+/.metadata/
+# =========================================================
+# Java
+# =========================================================
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Java packaged files
+*.jar
+*.war
+*.ear
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+
+# =========================================================
+# Maven
+# =========================================================
+
+target/
+.mvn/timing.properties
+
+# Maven wrapper - keep these files
+# !.mvn/wrapper/maven-wrapper.jar
+# !mvnw
+# !mvnw.cmd
+
+
+# =========================================================
+# Gradle
+# =========================================================
+
+.gradle/
+build/
+
+# Gradle wrapper - keep these files
+# !gradle/wrapper/gradle-wrapper.jar
+# !gradlew
+# !gradlew.bat
+
+
+# =========================================================
+# Spring Boot / Application
+# =========================================================
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local application configuration
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Secrets
+secrets.properties
+secrets.yml
+secrets.yaml
+
+# SSL certificates / private keys
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+
+
+# =========================================================
+# IntelliJ IDEA / IntelliJ-based IDEs
+# =========================================================
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IntelliJ compiler output
+out/
+
+# IntelliJ user-specific files
+*.iws
+
+
+# =========================================================
+# Eclipse
+# =========================================================
+
+.classpath
+.project
+.settings/
+
+# Eclipse metadata
+.factorypath
+
+
+# =========================================================
+# VS Code
+# =========================================================
+
+.vscode/
+
+# Keep shared VS Code configuration if needed
+# !.vscode/settings.json
+
+
+# =========================================================
+# NetBeans
+# =========================================================
+
+/nbproject/private/
+/nbbuild/
+/dist/
+/.nb-gradle/
+
+
+# =========================================================
+# Logs
+# =========================================================
+
+logs/
+log/
+*.log
+*.log.*
+spring.log
+
+
+# =========================================================
+# Database - Local Development
+# =========================================================
+
+# H2
+*.mv.db
+*.trace.db
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Local database dumps
+*.sql.gz
+*.dump
+
+
+# =========================================================
+# Docker
+# =========================================================
+
+# Docker local environment files
+docker/.env
+docker-compose.override.yml
+
+# Local Docker volumes
+docker-volumes/
+docker-data/
+
+# Docker logs
+docker-logs/
+
+
+# =========================================================
+# Kubernetes
+# =========================================================
+
+# Local/generated Kubernetes secrets
+k8s/secrets/
+kubernetes/secrets/
+
+# If secrets are stored as individual files
+**/secret.yaml
+**/secrets.yaml
+**/secret.yml
+**/secrets.yml
+
+
+# =========================================================
+# Temporary Files
+# =========================================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+
+# =========================================================
+# OS Files
+# =========================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+
+# =========================================================
+# Generated Files
+# =========================================================
+
+generated/
+generated-sources/
+generated-test-sources/
+
+*.generated.java
+
+
+# =========================================================
+# Reports
+# =========================================================
+
+reports/
+surefire-reports/
+failsafe-reports/
+coverage/
+jacoco/
+*.exec
+
+
+# =========================================================
+# Test / Temporary
+# =========================================================
+
+test-output/
+tmp/
+temp/
+
+
+# =========================================================
+# Node.js
+# =========================================================
+
+# Useful if your repository contains frontend/API gateway tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Frontend builds
+dist/
+.next/
+.nuxt/
+
+
+# =========================================================
+# Environment / Secrets
+# =========================================================
+
+*.env
+*.env.local
+*.env.development
+*.env.production
+*.env.test
+
+# Exception: commit template
+!.env.example
+
+
+# =========================================================
+# Local Certificates
+# =========================================================
+
+certs/
+certificates/
+
+# But allow documentation/example certificates
+!certs/README.md
+
+
+# =========================================================
+# Git
+# =========================================================
+
+# GitHub Copilot local files
+.github/copilot-instructions.local.md
+
+# Local Git configuration
+.gitconfig.local

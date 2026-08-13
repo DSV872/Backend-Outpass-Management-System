@@ -1,8 +1,13 @@
 spring:
+  application:
+    name: api-gateway
+
   cloud:
     gateway:
       server:
         webflux:
+
+          # CORS
           globalcors:
             cors-configurations:
               '[/**]':
@@ -14,5 +19,32 @@ spring:
                   - PUT
                   - DELETE
                   - OPTIONS
-                allowedHeaders: "*"
+                allowedHeaders:
+                  - "*"
                 allowCredentials: true
+
+          # Routes
+          routes:
+
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth-service/**
+              filters:
+                - StripPrefix=1
+
+            - id: outpass-service
+              uri: lb://outpass-service
+              predicates:
+                - Path=/outpass-service/**
+              filters:
+                - StripPrefix=1
+
+          # Forwarded headers
+          x-forwarded:
+            enabled: true
+            for-enabled: true
+            host-enabled: true
+            port-enabled: true
+            proto-enabled: true
+            prefix-enabled: true
