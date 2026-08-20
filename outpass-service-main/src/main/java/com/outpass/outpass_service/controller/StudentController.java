@@ -31,89 +31,120 @@ public class StudentController {
 
 	private final OutpassService outpassService;
 
+	// ============================================================
+	// APPLY OUTPASS
+	// ============================================================
+
 	@PostMapping("/apply")
 	public ResponseEntity<String> apply(@Valid @RequestBody OutpassRequest outpassRequest,
 			Authentication authentication) {
 
-		String studentEmail = authentication.getName();
+		String studentUserId = getUserId(authentication);
 
 		String role = getRole(authentication);
 
-		String token = outpassService.apply(outpassRequest, studentEmail, role);
+		String token = outpassService.apply(outpassRequest, studentUserId, role);
 
-		return ResponseEntity.ok("outpass is applied successfully! " + token);
+		return ResponseEntity.ok("Outpass applied successfully");
 	}
+
+	// ============================================================
+	// GET ONE OUTPASS
+	// ============================================================
 
 	@GetMapping("/outpasses/{outpassId}")
-	public ResponseEntity<OutpassResponse> outpassList(Authentication authentication,
-			@PathVariable("outpassId") long outpassId) {
+	public ResponseEntity<OutpassResponse> getOutpass(Authentication authentication, @PathVariable Long outpassId) {
 
-		String studentEmail = authentication.getName();
-
-		String role = getRole(authentication);
-
-		return ResponseEntity.ok(outpassService.getOutpassList(studentEmail, role, outpassId));
-	}
-
-	@GetMapping("/outpasses/all")
-	public ResponseEntity<List<OutpassResponse>> outpassList(Authentication authentication) {
-
-		String email = authentication.getName();
+		String studentUserId = getUserId(authentication);
 
 		String role = getRole(authentication);
 
-		List<OutpassResponse> response = outpassService.getOutpasses(email, role);
+		OutpassResponse response = outpassService.getOutpass(studentUserId, role, outpassId);
 
 		return ResponseEntity.ok(response);
 	}
 
-	@PutMapping("/{id}/approve")
-	public ResponseEntity<String> approveOutpass(@PathVariable Long id) {
+	// ============================================================
+	// GET ALL OUTPASSES
+	// ============================================================
 
-		outpassService.approveOutpass(id);
+	@GetMapping("/outpasses/all")
+	public ResponseEntity<List<OutpassResponse>> getOutpasses(Authentication authentication) {
 
-		return ResponseEntity.ok("Outpass approved");
+		String studentUserId = getUserId(authentication);
+
+		String role = getRole(authentication);
+
+		List<OutpassResponse> response = outpassService.getOutpasses(studentUserId, role);
+
+		return ResponseEntity.ok(response);
 	}
-	
+
+	// ============================================================
+	// RESEND PARENT EMAIL
+	// ============================================================
+
 	@PostMapping("/outpasses/{outpassId}/resend-email")
-	public ResponseEntity<ResendEmailResponse> resendEmail(
-	        @PathVariable Long outpassId,
-	        @Valid @RequestBody ResendEmailRequest request,
-	        Authentication authentication) {
+	public ResponseEntity<ResendEmailResponse> resendEmail(@PathVariable Long outpassId,
+			@Valid @RequestBody ResendEmailRequest request, Authentication authentication) {
 
-	    ResendEmailResponse response =
-	            outpassService.resendEmail(
-	                    outpassId,
-	                    request.getRecipient(),
-	                    authentication
-	            );
+		ResendEmailResponse response = outpassService.resendEmail(outpassId, request.getRecipient(), authentication);
 
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(response);
 	}
+
+	// ============================================================
+	// CANCEL OUTPASS
+	// ============================================================
 
 	@PutMapping("/cancel/{id}")
-	public ResponseEntity<String> cancelRequest(@PathVariable Long id, Authentication authentication) throws Exception {
+	public ResponseEntity<String> cancelRequest(@PathVariable Long id, Authentication authentication) {
 
-		String email = authentication.getName();
+		String studentUserId = getUserId(authentication);
 
-		outpassService.cancelRequest(id, email);
+		outpassService.cancelRequest(id, studentUserId);
 
-		return ResponseEntity.ok("Outpass Request Cancelled successfullly!");
+		return ResponseEntity.ok("Outpass request cancelled successfully");
 	}
+
+	// ============================================================
+	// GET QR
+	// ============================================================
 
 	@GetMapping("/qr/{id}")
 	public ResponseEntity<QrResponse> getQr(@PathVariable Long id, Authentication authentication) {
 
-		String email = authentication.getName();
+		String studentUserId = getUserId(authentication);
 
-		QrResponse response = outpassService.getQr(id, email);
+		QrResponse response = outpassService.getQr(id, studentUserId);
 
 		return ResponseEntity.ok(response);
 	}
 
+	// ============================================================
+	// GET USER ID
+	// ============================================================
+
+	private String getUserId(Authentication authentication) {
+
+		try {
+
+			return authentication.getName();
+
+		} catch (NumberFormatException ex) {
+
+			throw new IllegalStateException("Authenticated user ID is invalid");
+		}
+	}
+
+	// ============================================================
+	// GET ROLE
+	// ============================================================
+
 	private String getRole(Authentication authentication) {
 
 		return authentication.getAuthorities().stream().findFirst().map(authority -> authority.getAuthority())
-				.map(authority -> authority.replace("ROLE_", "")).orElseThrow();
+				.map(authority -> authority.replace("ROLE_", ""))
+				.orElseThrow(() -> new IllegalStateException("User role not found"));
 	}
 }

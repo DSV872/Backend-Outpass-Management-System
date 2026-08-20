@@ -10,6 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class QrPayload {
 	
-	private long outpassId;
+	public QrPayload(Long outpassId2) {
+		this.outpassId = outpassId2;
+	}
+	private Long outpassId;
 	private String email;
 }

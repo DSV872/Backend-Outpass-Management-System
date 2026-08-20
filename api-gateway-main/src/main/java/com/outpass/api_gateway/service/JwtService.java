@@ -14,30 +14,26 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-	
+
 	private final JwtProperties jwtProperties;
-	
+
 	private Key signingKey() {
 		return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
 	}
-	
+
 	public Claims extractAllClaims(String token) {
-		return Jwts.parserBuilder()
-				.setSigningKey(signingKey())
-				.build()
-				.parseClaimsJws(token)
-				.getBody();
+		return Jwts.parserBuilder().setSigningKey(signingKey()).build().parseClaimsJws(token).getBody();
 	}
-	
+
 	public void validateToken(String token) {
 		extractAllClaims(token);
 	}
-	
+
 	public String extractEmail(String token) {
 		return extractAllClaims(token).getSubject();
 	}
-	
+
 	public String extractRole(String token) {
-		return extractAllClaims(token).get("role",String.class);
+		return extractAllClaims(token).get("role", String.class);
 	}
 }

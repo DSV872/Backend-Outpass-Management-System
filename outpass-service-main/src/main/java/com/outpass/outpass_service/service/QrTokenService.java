@@ -1,27 +1,33 @@
 package com.outpass.outpass_service.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
-
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class QrTokenService {
-	private static final String SECRET = "6hKvPsRSc+e7Ehkvt44ahqkU5f9ntYfAs2XdTU8d+QE=";
-	
-	public String generate(long outpassId, String email,LocalDateTime expiresAt) {
-		Date expiryDate = java.sql.Timestamp.valueOf(expiresAt);
-		return Jwts.builder()
-				.setSubject("Outpass_QR")
-				.claim("outpassId",outpassId)
-				.claim("email",email)
-				.setIssuedAt(new Date())
-				.setExpiration(expiryDate)
-				.signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET)),SignatureAlgorithm.HS256)
-				.compact();
+	private final SecretKey secretKey;
+
+	public QrTokenService(@Value("${security.qr-secret}") String qrSecret) {
+		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(qrSecret));
+		log.info("QR token service initialized successfully");
+	}
+
+	public String generate(Long outpassId, String studentUserId, LocalDateTime expiresAt) {
+		log.debug("Generating QR token: outpassId={}, expiresAt={}", outpassId, expiresAt);
+		Date issuedAt = new Date();
+		Date expiration = Date.from(expiresAt.atZone(ZoneId.systemDefault()).toInstant());
+		String token = Jwts.builder().claim("outpassId", outpassId).claim("studentUserId", studentUserId)
+				.setIssuedAt(issuedAt).setExpiration(expiration).signWith(secretKey).compact();
+		log.info("QR token generated successfully: outpassId={}, studentUserId={}", outpassId, studentUserId);
+		return token;
 	}
 }

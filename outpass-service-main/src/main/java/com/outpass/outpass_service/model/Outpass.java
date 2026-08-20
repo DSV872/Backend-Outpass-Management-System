@@ -1,83 +1,97 @@
 package com.outpass.outpass_service.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "outpass")
+@Table(name = "outpasses")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Outpass {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-	
-	@Column(name = "student_email",nullable = false)
-	private String studentEmail;
-	
+	private Long id;
+
+	/**
+	 * Reference to User.id from auth-service.
+	 *
+	 * This is NOT a JPA relationship because User belongs to another microservice.
+	 */
+	@Column(name = "student_user_id", nullable = false)
+	private String studentUserId;
+
 	@Enumerated(EnumType.STRING)
-	@Column(name = "outpass_type",nullable=false)
+	@Column(name = "outpass_type", nullable = false, length = 30)
 	private OutpassType outpassType;
-	
-	@Column(name = "reason",nullable = false)
+
+	@Column(name = "reason", nullable = false, length = 500)
 	private String reason;
-	
-	@Column(name = "destination",nullable = false)
+
+	@Column(name = "destination", nullable = false, length = 255)
 	private String destination;
-	
-	@Column(name = "out_time",nullable = false)
+
+	@Column(name = "out_time", nullable = false)
 	private LocalDateTime outTime;
-	
-	@Column(name = "expected_in_time",nullable = false)
+
+	@Column(name = "expected_in_time", nullable = false)
 	private LocalDateTime expectedInTime;
-	
-	@Column(name = "actual_out_time",nullable = true)
+
+	@Column(name = "actual_out_time")
 	private LocalDateTime actualOutTime;
-	
-	@Column(name = "actual_in_time",nullable = true)
+
+	@Column(name = "actual_in_time")
 	private LocalDateTime actualInTime;
-	
+
 	@Enumerated(EnumType.STRING)
-	@Column(name="status",nullable = false)
+	@Column(name = "status", nullable = false, length = 30)
 	private OutpassStatus status;
-	
-	@Column(name="parent_email",nullable = false)
-	private String parentEmail;
-	
-	@Column(name = "parent_approved_at",nullable = true)
-	private LocalDateTime parentApprovedAt;
-	
-	@Column(name = "parent_approval_token_hash",nullable = true)
-	private String parentApprovalTokenHash;
-	
-	@Column(name = "parent_approval_token_expiry", nullable = true)
-	private LocalDateTime parentApprovalTokenExpiry;
-	
-	@Column(name = "warden_approved_at",nullable = true)
-	private LocalDateTime wardenApprovedAt;
-	
-	@Column(name = "warden_email",nullable = true)
-	private String wardenEmail;
-	
-	@Column(name = "warden_signature_url",nullable = true)
-	private String wardenSignatureUrl;
-	
-	@Column(name = "warden_remarks",nullable = true)
-	private String wardenRemarks;
-	
-	@Column(name = "qr_token", nullable = true)
-	private String qrToken;
-	
-	@Column(name = "qr_generated_at",nullable = true)
-	private LocalDateTime qrGeneratedAt;
-	
-	@Column(name = "created_at",nullable = false)
+
+	@OneToMany(mappedBy = "outpass", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<OutpassApproval> approvals = new ArrayList<>();
+
+	@OneToOne(mappedBy = "outpass", cascade = CascadeType.ALL, orphanRemoval = true)
+	private OutpassQr qr;
+
+	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
-	
-	@Column(name = "updated_at",nullable = true)
+
+	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
-	
+
+	@PrePersist
+	protected void onCreate() {
+		LocalDateTime now = LocalDateTime.now();
+		createdAt = now;
+		updatedAt = now;
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
+
+	public void addApproval(OutpassApproval approval) {
+		approvals.add(approval);
+		approval.setOutpass(this);
+	}
+
+	public void removeApproval(OutpassApproval approval) {
+		approvals.remove(approval);
+		approval.setOutpass(null);
+	}
+
+	public void setQr(OutpassQr qr) {
+		this.qr = qr;
+
+		if (qr != null) {
+			qr.setOutpass(this);
+		}
+	}
 }

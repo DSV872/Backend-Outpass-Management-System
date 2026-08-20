@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class WardenHistory {
 	 private long id;
-	 private String studentEmail;
+	 private String studentUserId;;
 	 private OutpassType type;
 	 private LocalDateTime outTime;
 	 private LocalDateTime inTime;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.outpass.outpass_service.dto.SecurityOutpassDto;
-import com.outpass.outpass_service.service.SecuirtyService;
+import com.outpass.outpass_service.service.SecurityService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -22,41 +22,58 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "bearerAuth")
 public class SecurityController {
 
-	private final SecuirtyService securityService;
+	private final SecurityService securityService;
+
+	// ============================================================
+	// SCAN OUT
+	// ============================================================
 
 	@PutMapping("/scan-out/{qrToken}")
 	public ResponseEntity<String> scanOut(Authentication authentication, @PathVariable String qrToken) {
 
-		String email = authentication.getName();
 		String role = getRole(authentication);
 
-		securityService.approve(email, role, qrToken);
+		securityService.approve(role, qrToken);
 
 		return ResponseEntity.ok("Hooray! You can cross the gate");
 	}
 
+	// ============================================================
+	// SCAN IN
+	// ============================================================
+
 	@PutMapping("/scan-in/{qrToken}")
 	public ResponseEntity<String> scanIn(Authentication authentication, @PathVariable String qrToken) {
 
-		String email = authentication.getName();
 		String role = getRole(authentication);
 
-		securityService.scanIn(email, role, qrToken);
+		securityService.scanIn(role, qrToken);
 
 		return ResponseEntity.ok("Hooray! You can in the college");
 	}
 
-	@GetMapping("/history")
-	public ResponseEntity<List<SecurityOutpassDto>> getSecurityHistory() {
+	// ============================================================
+	// SECURITY HISTORY
+	// ============================================================
 
-		List<SecurityOutpassDto> outpasses = securityService.getSecurityHistory();
+	@GetMapping("/history")
+	public ResponseEntity<List<SecurityOutpassDto>> getSecurityHistory(Authentication authentication) {
+
+		String role = getRole(authentication);
+
+		List<SecurityOutpassDto> outpasses = securityService.getSecurityHistory(role);
 
 		return ResponseEntity.ok(outpasses);
 	}
 
+	// ============================================================
+	// GET ROLE
+	// ============================================================
+
 	private String getRole(Authentication authentication) {
 
 		return authentication.getAuthorities().stream().findFirst().map(authority -> authority.getAuthority())
-				.map(authority -> authority.replace("ROLE_", "")).orElseThrow();
+				.map(authority -> authority.replace("ROLE_", ""))
+				.orElseThrow(() -> new IllegalStateException("User role not found"));
 	}
 }

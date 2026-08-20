@@ -22,58 +22,54 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(
-        nullable = false,
-        unique = true,
-        length = 100
-    )
-    private String email;
+	/**
+	 * Business identifier shared across microservices. Example: USR20199
+	 */
+	@Column(name = "user_id", nullable = false, unique = true, length = 20)
+	private String userId;
 
-    @Column(
-        nullable = false,
-        length = 255
-    )
-    private String password;
+	@Column(name = "email", nullable = false, unique = true, length = 100)
+	private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RoleType role;
+	@Column(name = "password", nullable = false, length = 255)
+	private String password;
 
-    @Column(nullable = false)
-    private boolean enabled = true;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", nullable = false, length = 30)
+	private RoleType role;
 
-    @Column(
-        nullable = false,
-        updatable = false
-    )
-    private LocalDateTime createdAt;
+	@Column(name = "enabled", nullable = false)
+	private boolean enabled = true;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @Column
-    private LocalDateTime lastLoginAt;
+	@Column(name = "updated_at", nullable = false)
+	private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void onCreate() {
+	@Column(name = "last_login_at")
+	private LocalDateTime lastLoginAt;
 
-        LocalDateTime now = LocalDateTime.now();
+	@PrePersist
+	protected void onCreate() {
 
-        createdAt = now;
-        updatedAt = now;
-    }
+		LocalDateTime now = LocalDateTime.now();
 
-    @PreUpdate
-    public void onUpdate() {
+		createdAt = now;
+		updatedAt = now;
+	}
 
-        updatedAt = LocalDateTime.now();
-    }
+	@PreUpdate
+	protected void onUpdate() {
+
+		updatedAt = LocalDateTime.now();
+	}
 }

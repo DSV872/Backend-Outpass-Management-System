@@ -13,23 +13,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT",
-        in = SecuritySchemeIn.HEADER
-)
+@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT", in = SecuritySchemeIn.HEADER)
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-
-        return new OpenAPI()
-                .addServersItem(
-                        new Server()
-                                .url("http://localhost:8080/auth-service")
-                                .description("API Gateway")
-                );
-    }
+	@Bean
+	public OpenAPI customOpenAPI() {
+		return new OpenAPI()
+				.addServersItem(new Server().url("http://localhost:8080/auth-service").description("API Gateway"));
+	}
 }

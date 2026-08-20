@@ -35,7 +35,7 @@ public class NotificationConsumer {
 	}
 
 	private void sendParentApprovalMail(OutpassEvent event) {
-
+		System.out.println(event);
 		Context context = new Context();
 		context.setVariable("approveUrl","http://localhost:8080/outpass-service/parent/approve?token="+event.getApprovalToken());
 		context.setVariable("rejectUrl", "http://localhost:8080/outpass-service/parent/reject?token="+event.getApprovalToken());
@@ -49,10 +49,12 @@ public class NotificationConsumer {
 		Context context = new Context();
 		context.setVariable("studentEmail", event.getStudentEmail());
 		String html = templateEngine.process("parent-approved", context);
+		System.out.println(event);
 		emailService.sendHtmlEmail(event.getStudentEmail(), "Alert:Outpass Approved", html);
 	}
 
 	private void sendWardenApprovedMail(OutpassEvent event) {
+		System.out.println(event);
 		System.out.println("Sending approved mail to the student "+event.getStudentEmail());
 		Context context = new Context();
 		context.setVariable("studentEmail", event.getStudentEmail());
@@ -61,6 +63,7 @@ public class NotificationConsumer {
 	}
 
 	private void sendRejectedMail(OutpassEvent event) {
+		System.out.println(event);
 		Context context = new Context();
 		context.setVariable("studentEmail", event.getStudentEmail());
 		String html = templateEngine.process("rejected", context);

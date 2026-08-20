@@ -11,24 +11,20 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OutpassRequest {
-	
+
 	@NotNull
 	private OutpassType outpassType;
-	
+
 	@NotBlank
 	private String reason;
-	
+
 	@NotBlank
 	private String destination;
-	
+
 	@NotNull
 	private LocalDateTime outTime;
-	
+
 	@NotNull
 	private LocalDateTime expectedInTime;
-	
-	@NotBlank
-	private String parentEmail;
-	
-	
+
 }

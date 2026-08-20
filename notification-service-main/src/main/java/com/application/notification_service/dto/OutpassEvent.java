@@ -5,16 +5,19 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class OutpassEvent {
 
     private Long outpassId;
     private String studentEmail;
     private String parentEmail;
+    private String wardenEmail;
     private String status;
     private String approvalToken;
 }

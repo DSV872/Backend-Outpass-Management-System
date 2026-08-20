@@ -26,52 +26,93 @@ public class WardenController {
 
 	private final WardenService wardenService;
 
-	@PutMapping("/approve/{outpassId}")
-	public ResponseEntity<QrResponse> approve(Authentication authentication, @PathVariable long outpassId) {
+	// ============================================================
+	// APPROVE OUTPASS
+	// ============================================================
 
-		String email = authentication.getName();
+	@PutMapping("/approve/{outpassId}")
+	public ResponseEntity<QrResponse> approve(Authentication authentication, @PathVariable Long outpassId) {
+
+		String wardenUserId = getUserId(authentication);
+
 		String role = getRole(authentication);
 
-		QrResponse qr = wardenService.approve(email, role, outpassId);
+		QrResponse qr = wardenService.approve(wardenUserId, role, outpassId);
 
 		return ResponseEntity.ok(qr);
 	}
 
-	@PutMapping("/reject/{outpassId}")
-	public ResponseEntity<String> reject(Authentication authentication, @PathVariable long outpassId) {
+	// ============================================================
+	// REJECT OUTPASS
+	// ============================================================
 
-		String email = authentication.getName();
+	@PutMapping("/reject/{outpassId}")
+	public ResponseEntity<String> reject(Authentication authentication, @PathVariable Long outpassId) {
+
+		String wardenUserId = getUserId(authentication);
+
 		String role = getRole(authentication);
 
-		wardenService.reject(email, role, outpassId);
+		String response = wardenService.reject(wardenUserId, role, outpassId);
 
-		return ResponseEntity.ok("warden rejected successfully");
+		return ResponseEntity.ok(response);
 	}
+
+	// ============================================================
+	// PENDING OUTPASSES
+	// ============================================================
 
 	@GetMapping("/pending")
 	public ResponseEntity<List<OutpassPendingResponse>> pendingOutpassList(Authentication authentication) {
 
 		String role = getRole(authentication);
+		String wardenUserId = authentication.getName();
 
-		List<OutpassPendingResponse> response = wardenService.getPendingOutpassList(role);
+		List<OutpassPendingResponse> response = wardenService.getPendingOutpassList(wardenUserId, role);
 
 		return ResponseEntity.ok(response);
 	}
 
+	// ============================================================
+	// WARDEN HISTORY
+	// ============================================================
+
 	@GetMapping("/history")
 	public ResponseEntity<List<WardenHistory>> wardenHistory(Authentication authentication) {
 
-		String email = authentication.getName();
+		String wardenUserId = getUserId(authentication);
+
 		String role = getRole(authentication);
 
-		List<WardenHistory> wardenApproveList = wardenService.getWardenApproveList(email, role);
+		List<WardenHistory> history = wardenService.getWardenApproveList(wardenUserId, role);
 
-		return ResponseEntity.ok(wardenApproveList);
+		return ResponseEntity.ok(history);
 	}
+
+	// ============================================================
+	// GET USER ID
+	// ============================================================
+
+	private String getUserId(Authentication authentication) {
+
+		try {
+
+			return authentication.getName();
+
+		} catch (NumberFormatException ex) {
+
+			throw new IllegalStateException("Authenticated user ID is invalid");
+		}
+	}
+
+	// ============================================================
+	// GET ROLE
+	// ============================================================
 
 	private String getRole(Authentication authentication) {
 
 		return authentication.getAuthorities().stream().findFirst().map(authority -> authority.getAuthority())
-				.map(authority -> authority.replace("ROLE_", "")).orElseThrow();
+				.map(authority -> authority.replace("ROLE_", ""))
+				.orElseThrow(() -> new IllegalStateException("User role not found"));
 	}
 }

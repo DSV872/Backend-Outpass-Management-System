@@ -7,23 +7,25 @@ spring:
       server:
         webflux:
 
-          # CORS
           globalcors:
             cors-configurations:
               '[/**]':
                 allowedOrigins:
                   - "http://localhost:5173"
+
                 allowedMethods:
                   - GET
                   - POST
                   - PUT
+                  - PATCH
                   - DELETE
                   - OPTIONS
+
                 allowedHeaders:
                   - "*"
+
                 allowCredentials: true
 
-          # Routes
           routes:
 
             - id: auth-service
@@ -40,7 +42,6 @@ spring:
               filters:
                 - StripPrefix=1
 
-          # Forwarded headers
           x-forwarded:
             enabled: true
             for-enabled: true
