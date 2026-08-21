@@ -21,8 +21,8 @@ import com.outpass.auth_service.dto.UserResponse;
 import com.outpass.auth_service.dto.UserStatusRequest;
 import com.outpass.auth_service.service.UserService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+//import io.swagger.v3.oas.annotations.Operation;
+//import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +35,7 @@ public class UserController {
 
 	@PostMapping("/register")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
+//	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
 	public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterDto register) {
 		return ResponseEntity.ok(userService.createUser(register));
 	}
@@ -47,14 +47,14 @@ public class UserController {
 
 	@GetMapping("/users")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
+//	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
 	public ResponseEntity<List<UserResponse>> getAllUsers() {
 		return ResponseEntity.ok(userService.getAllUsers());
 	}
 
 	@PatchMapping("/users/{userId}/status")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
+//	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
 	public ResponseEntity<UserResponse> updateUserStatus(@PathVariable String userId,
 			@Valid @RequestBody UserStatusRequest request) {
 		return ResponseEntity.ok(userService.updateUserStatus(userId, request.getEnabled()));
@@ -62,7 +62,7 @@ public class UserController {
 
 	@PutMapping("/users/{userId}")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
+//	@Operation(security = { @SecurityRequirement(name = "bearerAuth") })
 	public ResponseEntity<UserResponse> updateUser(@PathVariable String userId,
 			@Valid @RequestBody UpdateUserRequest request) {
 		return ResponseEntity.ok(userService.updateUser(userId, request));
