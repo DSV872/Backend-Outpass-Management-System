@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.outpass.profile_service.dto.StudentParentResponse;
 import com.outpass.profile_service.dto.StudentProfileResponse;
 import com.outpass.profile_service.dto.WardenDutyResponse;
+import com.outpass.profile_service.exception.WardenDutyNotFoundException;
 import com.outpass.profile_service.service.StudentProfileService;
 import com.outpass.profile_service.service.WardenDutyService;
 
@@ -42,7 +43,7 @@ public class InternalProfileController {
 		List<WardenDutyResponse> response = wardenDutyService.getTodaysDuties();
 
 		if (response.isEmpty()) {
-			throw new IllegalStateException("No warden is assigned for today");
+			throw new WardenDutyNotFoundException("No warden is assigned for today");
 		}
 
 		return ResponseEntity.ok(response);
