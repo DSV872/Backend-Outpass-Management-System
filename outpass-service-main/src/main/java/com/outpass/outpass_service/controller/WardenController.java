@@ -15,13 +15,11 @@ import com.outpass.outpass_service.dto.QrResponse;
 import com.outpass.outpass_service.dto.WardenHistory;
 import com.outpass.outpass_service.service.WardenService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/warden")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class WardenController {
 
 	private final WardenService wardenService;

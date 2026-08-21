@@ -2,6 +2,7 @@ package com.outpass.outpass_service.controller;
 
 import java.util.List;
 
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,13 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.outpass.outpass_service.dto.SecurityOutpassDto;
 import com.outpass.outpass_service.service.SecurityService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/security")
-@SecurityRequirement(name = "bearerAuth")
 public class SecurityController {
 
 	private final SecurityService securityService;

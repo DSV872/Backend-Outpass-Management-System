@@ -19,14 +19,12 @@ import com.outpass.outpass_service.dto.ResendEmailRequest;
 import com.outpass.outpass_service.dto.ResendEmailResponse;
 import com.outpass.outpass_service.service.OutpassService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/student")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class StudentController {
 
 	private final OutpassService outpassService;
