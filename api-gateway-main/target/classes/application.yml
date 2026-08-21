@@ -11,7 +11,7 @@ spring:
             cors-configurations:
               '[/**]':
                 allowedOrigins:
-                  - "http://localhost:5173"
+                  - "https://front-end-outpass-management-system.vercel.app/"
                 allowedMethods:
                   - GET
                   - POST
