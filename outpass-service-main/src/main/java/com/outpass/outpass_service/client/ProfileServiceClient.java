@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.outpass.outpass_service.dto.StudentParentResponse;
 import com.outpass.outpass_service.dto.WardenDutyResponse;
 
-@FeignClient(name = "profile-service")
+@FeignClient(name = "profile-service", url = "${services.profile.url}")
 public interface ProfileServiceClient {
 
 	@GetMapping("/internal/students/{userId}/parent")
