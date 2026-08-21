@@ -12,14 +12,12 @@ import com.outpass.profile_service.dto.SecurityProfileResponse;
 import com.outpass.profile_service.dto.SecurityProfileUpdateRequest;
 import com.outpass.profile_service.service.SecurityProfileService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/profiles/security")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class SecurityProfileController {
 
     private final SecurityProfileService securityProfileService;

@@ -185,7 +185,7 @@ public class OutpassService {
 		outpass.setStatus(OutpassStatus.WARDEN_APPROVED);
 		approvalRepo.save(wardenApproval);
 		outpassRepo.save(outpass);
-		
+
 		UserValidationResponse student = authServiceClient.getUser(outpass.getStudentUserId());
 		log.info("Outpass approved by warden: outpassId={}, studentUserId={}, wardenUserId={}", outpass.getId(),
 				outpass.getStudentUserId(), wardenUserId);
@@ -229,7 +229,7 @@ public class OutpassService {
 		outpass.setStatus(OutpassStatus.REJECTED);
 		approvalRepo.save(wardenApproval);
 		outpassRepo.save(outpass);
-		
+
 		UserValidationResponse student = authServiceClient.getUser(outpass.getStudentUserId());
 		log.info("Outpass rejected by warden: outpassId={}, studentUserId={}, wardenUserId={}", outpass.getId(),
 				student.getEmail(), wardenUserId);
@@ -349,7 +349,8 @@ public class OutpassService {
 			return;
 		}
 		for (Outpass outpass : outpasses) {
-			log.info("Cancelling expired outpass: outpassId={}, studentUserId={}", outpass.getId(), outpass.getStudentUserId());
+			log.info("Cancelling expired outpass: outpassId={}, studentUserId={}", outpass.getId(),
+					outpass.getStudentUserId());
 			outpass.setStatus(OutpassStatus.CANCELLED);
 		}
 		outpassRepo.saveAll(outpasses);
@@ -366,37 +367,25 @@ public class OutpassService {
 		}
 		String studentUserId = authentication.getName();
 		if (studentUserId == null || studentUserId.isBlank()) {
-			log.warn("Authenticated user ID missing during email resend: outpassId={}", outpassId);
 			throw new UserValidationException("Authenticated user ID is missing");
 		}
-		Outpass outpass = outpassRepo.findById(outpassId).orElseThrow(() -> {
-			log.warn("Outpass not found for email resend: outpassId={}", outpassId);
-			return new OutpassNotFoundException("Outpass not found: " + outpassId);
-		});
+		Outpass outpass = outpassRepo.findById(outpassId)
+				.orElseThrow(() -> new OutpassNotFoundException("Outpass not found: " + outpassId));
 		if (!outpass.getStudentUserId().equals(studentUserId)) {
-			log.warn("Unauthorized email resend attempt: outpassId={}, studentUserId={}", outpassId, studentUserId);
 			throw new UnauthorizedOutpassException("You are not authorized to resend this email");
 		}
-		if (recipient != EmailRecipient.PARENT) {
-			log.warn("Invalid email resend recipient: outpassId={}, recipient={}", outpassId, recipient);
-			throw new EmailResendException("Only parent approval emails can be resent");
+		OutpassApproval approval = approvalRepo
+				.findByOutpassIdAndApproverType(outpassId,
+						recipient == EmailRecipient.PARENT ? ApproverType.PARENT : ApproverType.WARDEN)
+				.orElseThrow(() -> new OutpassNotFoundException(recipient + " approval record not found"));
+		if (approval.getStatus() == ApprovalStatus.APPROVED) {
+			throw new EmailResendException(recipient + " has already approved this outpass");
 		}
-		OutpassApproval parentApproval = approvalRepo.findByOutpassIdAndApproverType(outpassId, ApproverType.PARENT)
-				.orElseThrow(() -> {
-					log.warn("Parent approval record not found: outpassId={}", outpassId);
-					return new OutpassNotFoundException("Parent approval record not found");
-				});
-		if (parentApproval.getStatus() == ApprovalStatus.APPROVED) {
-			log.warn("Parent email resend attempted after approval: outpassId={}", outpassId);
-			throw new EmailResendException("Parent has already approved this outpass");
-		}
-		if (parentApproval.getStatus() == ApprovalStatus.REJECTED) {
-			log.warn("Parent email resend attempted after rejection: outpassId={}", outpassId);
-			throw new EmailResendException("Parent has already rejected this outpass");
+		if (approval.getStatus() == ApprovalStatus.REJECTED) {
+			throw new EmailResendException(recipient + " has already rejected this outpass");
 		}
 		OutpassEmailResend resend = resendRepository.findByOutpass_IdAndRecipient(outpassId, recipient)
 				.orElseGet(() -> {
-					log.debug("Creating email resend record: outpassId={}, recipient={}", outpassId, recipient);
 					OutpassEmailResend newResend = new OutpassEmailResend();
 					newResend.setOutpass(outpass);
 					newResend.setRecipient(recipient);
@@ -404,25 +393,27 @@ public class OutpassService {
 					return resendRepository.save(newResend);
 				});
 		if (resend.getResendCount() >= 3) {
-			log.warn("Maximum email resend limit reached: outpassId={}, resendCount={}", outpassId,
-					resend.getResendCount());
 			throw new EmailResendException("Maximum email resend limit of 3 has been reached");
 		}
 		resend.setResendCount(resend.getResendCount() + 1);
 		resendRepository.save(resend);
 		String rawToken = tokenService.generateToken();
 		String tokenHash = tokenService.hash(rawToken);
-		parentApproval.setApprovalTokenHash(tokenHash);
-		parentApproval.setApprovalTokenExpiry(LocalDateTime.now().plusHours(12));
-		parentApproval.setStatus(ApprovalStatus.PENDING);
-		approvalRepo.save(parentApproval);
-		OutpassEvent event = new OutpassEvent(outpass.getId(), outpass.getStudentUserId(),
-				parentApproval.getApproverEmail(), null, OutpassStatus.PENDING.name(), rawToken);
-		kafkaTemplate.send("outpass-events", event);
+		approval.setApprovalTokenHash(tokenHash);
+		approval.setApprovalTokenExpiry(LocalDateTime.now().plusHours(12));
+		approval.setStatus(ApprovalStatus.PENDING);
+		approvalRepo.save(approval);
+		OutpassEvent event;
+		if (recipient == EmailRecipient.PARENT) {
+			event = new OutpassEvent(outpass.getId(), outpass.getStudentUserId(), approval.getApproverEmail(), null,
+					OutpassStatus.PENDING.name(), rawToken);
+			kafkaTemplate.send("outpass-parent-events", event);
+		} else {
+			event = new OutpassEvent(outpass.getId(), outpass.getStudentUserId(), approval.getApproverEmail(), null,
+					OutpassStatus.PARENT_APPROVED.name(), null);
+			kafkaTemplate.send("outpass-warden-events", event);
+		}
 		int remainingAttempts = 3 - resend.getResendCount();
-		log.info(
-				"Parent approval email resent successfully: outpassId={}, studentUserId={}, resendCount={}, remainingAttempts={}",
-				outpassId, studentUserId, resend.getResendCount(), remainingAttempts);
 		return new ResendEmailResponse("Email resent successfully", recipient, resend.getResendCount(),
 				remainingAttempts);
 	}

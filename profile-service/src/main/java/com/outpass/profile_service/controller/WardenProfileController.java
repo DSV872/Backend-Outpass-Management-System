@@ -12,14 +12,12 @@ import com.outpass.profile_service.dto.WardenProfileResponse;
 import com.outpass.profile_service.dto.WardenProfileUpdateRequest;
 import com.outpass.profile_service.service.WardenProfileService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/profiles/wardens")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class WardenProfileController {
 
 	private final WardenProfileService wardenProfileService;

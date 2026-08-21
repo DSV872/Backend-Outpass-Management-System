@@ -12,7 +12,6 @@ import com.outpass.profile_service.dto.WardenDutyRequest;
 import com.outpass.profile_service.dto.WardenDutyResponse;
 import com.outpass.profile_service.service.WardenDutyService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/profiles/warden-duties")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 @Slf4j
 public class WardenDutyController {
 

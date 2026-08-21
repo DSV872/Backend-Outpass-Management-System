@@ -13,14 +13,12 @@ import com.outpass.profile_service.dto.StudentProfileResponse;
 import com.outpass.profile_service.dto.StudentProfileUpdateRequest;
 import com.outpass.profile_service.service.StudentProfileService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/profiles/students")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class StudentProfileController {
 
     private final StudentProfileService studentProfileService;
