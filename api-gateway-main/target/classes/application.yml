@@ -12,7 +12,6 @@ spring:
               '[/**]':
                 allowedOrigins:
                   - "http://localhost:5173"
-
                 allowedMethods:
                   - GET
                   - POST
@@ -20,32 +19,44 @@ spring:
                   - PATCH
                   - DELETE
                   - OPTIONS
-
                 allowedHeaders:
                   - "*"
-
                 allowCredentials: true
 
           routes:
 
             - id: auth-service
-              uri: lb://auth-service
+              uri: https://auth-service-gktb.onrender.com
               predicates:
                 - Path=/auth-service/**
               filters:
                 - StripPrefix=1
 
+            - id: profile-service
+              uri: https://backend-outpass-management-system.onrender.com
+              predicates:
+                - Path=/profile-service/**
+              filters:
+                - StripPrefix=1
+
             - id: outpass-service
-              uri: lb://outpass-service
+              uri: https://outpass-service.onrender.com
               predicates:
                 - Path=/outpass-service/**
               filters:
                 - StripPrefix=1
 
-          x-forwarded:
-            enabled: true
-            for-enabled: true
-            host-enabled: true
-            port-enabled: true
-            proto-enabled: true
-            prefix-enabled: true
+            - id: notification-service
+              uri: https://notification-service-sm87.onrender.com
+              predicates:
+                - Path=/notification-service/**
+              filters:
+                - StripPrefix=1
+
+      x-forwarded:
+        enabled: true
+        for-enabled: true
+        host-enabled: true
+        port-enabled: true
+        proto-enabled: true
+        prefix-enabled: true
