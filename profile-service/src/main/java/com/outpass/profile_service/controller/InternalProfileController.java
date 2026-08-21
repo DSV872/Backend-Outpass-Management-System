@@ -41,11 +41,6 @@ public class InternalProfileController {
 	public ResponseEntity<List<WardenDutyResponse>> getTodaysWardenDuty() {
 
 		List<WardenDutyResponse> response = wardenDutyService.getTodaysDuties();
-
-		if (response.isEmpty()) {
-			throw new WardenDutyNotFoundException("No warden is assigned for today");
-		}
-
 		return ResponseEntity.ok(response);
 	}
 }
