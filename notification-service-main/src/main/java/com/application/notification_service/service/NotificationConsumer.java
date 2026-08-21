@@ -37,8 +37,8 @@ public class NotificationConsumer {
 	private void sendParentApprovalMail(OutpassEvent event) {
 		System.out.println(event);
 		Context context = new Context();
-		context.setVariable("approveUrl","http://localhost:8080/outpass-service/parent/approve?token="+event.getApprovalToken());
-		context.setVariable("rejectUrl", "http://localhost:8080/outpass-service/parent/reject?token="+event.getApprovalToken());
+		context.setVariable("approveUrl","https://front-end-outpass-management-system.vercel.app/outpass-service/parent/approve?token="+event.getApprovalToken());
+		context.setVariable("rejectUrl", "https://front-end-outpass-management-system.vercel.app/outpass-service/parent/reject?token="+event.getApprovalToken());
 		context.setVariable("studentEmail", event.getStudentEmail());
 		String html = templateEngine.process("parent-approval", context);
 		System.out.println("Sending mail to: " + event.getParentEmail());
